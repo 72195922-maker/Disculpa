@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cortocircuito: te debo una disculpa</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e1a2b;--panel:#16263d;--ink:#f3ecd8;--mute:#9fb0c8;--y:#ffd23f;--cu:#c8742e;--red:#ef476f;--ok:#5ee6a8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#fff6d6;--panel:#ffe9a0;--ink:#1d2a40;--mute:#52627c}}
+:root[data-theme="dark"]{--bg:#0e1a2b;--panel:#16263d;--ink:#f3ecd8;--mute:#9fb0c8}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Fredoka',system-ui,sans-serif;line-height:1.55;overflow-x:hidden;
+background-image:linear-gradient(var(--panel) 1px,transparent 1px),linear-gradient(90deg,var(--panel) 1px,transparent 1px);background-size:36px 36px}
+main{max-width:640px;margin:0 auto;padding:20px 18px 60px;text-align:center}
+h1{font-size:clamp(1.9rem,7vw,2.8rem);line-height:1.1;margin:.3em 0 .2em}
+p{max-width:52ch;margin:.5em auto}
+.who{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;font-size:.85rem;color:var(--mute)}
+.who input{background:var(--panel);border:1px solid var(--cu);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;width:140px}
+#pika{width:min(250px,70vw);height:auto;display:block;margin:10px auto;animation:flick 4s infinite}
+@keyframes flick{0%,86%,100%{filter:none}88%{filter:brightness(.55)}90%{filter:none}93%{filter:brightness(.6)}}
+.happy-on #pika{animation:bounce .9s ease-in-out infinite}
+@keyframes bounce{50%{transform:translateY(-12px)}}
+.tear{animation:tear 1.8s infinite;fill:#8fd3ff}
+.tear.b{animation-delay:.9s}
+@keyframes tear{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(34px);opacity:0}}
+.hp,.bolt{display:none}.happy-on .hp,.happy-on .bolt{display:inline}.happy-on .sd{display:none}
+.bolt{animation:zap .5s infinite alternate}
+@keyframes zap{to{opacity:.3}}
+.board{background:var(--panel);border:2px solid var(--cu);border-radius:18px;padding:18px 14px;margin:18px 0}
+.board h2{margin:0 0 4px;font-size:1.15rem}
+.sw{display:flex;align-items:center;gap:12px;width:100%;background:transparent;border:2px dashed var(--mute);color:var(--ink);border-radius:14px;padding:10px 14px;margin:10px 0;font:inherit;font-size:1rem;cursor:pointer;text-align:left}
+.sw:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--y);outline-offset:2px}
+.sw .led{flex:none;width:22px;height:22px;border-radius:50%;background:#2b3b55;border:2px solid var(--mute);transition:.3s}
+.sw.on{border:2px solid var(--y);border-style:solid}
+.sw.on .led{background:var(--y);border-color:var(--y);box-shadow:0 0 16px 4px var(--y)}
+.meter{height:22px;background:#0006;border-radius:12px;overflow:hidden;border:2px solid var(--cu);margin-top:14px}
+#fill{height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--y),var(--ok));transition:width .6s}
+#volts{font-weight:600;margin-top:6px}
+.letter{display:none;background:#fff8e1;color:#3a2a14;border-radius:6px;padding:22px 20px;margin:20px 0;font-family:'Caveat',cursive;font-size:1.45rem;line-height:1.4;text-align:left;box-shadow:0 8px 0 var(--cu);transform:rotate(-.8deg)}
+.letter.show{display:block;animation:pop .6s}
+@keyframes pop{from{opacity:0;transform:scale(.9) rotate(-3deg)}}
+.letter b{color:#b3261e}
+.ask{display:none;margin-top:10px}.ask.show{display:block}
+.ask h2{font-size:1.6rem}
+.btns{position:relative;height:130px}
+button.go{font:inherit;font-weight:600;font-size:1.1rem;border:0;border-radius:40px;padding:12px 26px;cursor:pointer;background:var(--y);color:#2b1d00;box-shadow:0 5px 0 var(--cu)}
+button.go:active{transform:translateY(4px);box-shadow:0 1px 0 var(--cu)}
+#no{position:absolute;background:var(--panel);color:var(--ink);box-shadow:none;border:1px solid var(--mute);left:62%;top:6px;transition:left .25s,top .25s}
+#yes{position:absolute;left:12%;top:6px}
+#final{display:none;font-size:1.3rem}
+#final.show{display:block;animation:pop .6s}
+.hint{color:var(--mute);font-size:.9rem}
+.heart{position:fixed;bottom:-30px;pointer-events:none;animation:up 3.2s linear forwards;z-index:9}
+@keyframes up{to{transform:translateY(-110vh) rotate(40deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){#pika,.tear,.bolt,.happy-on #pika{animation:none}.heart{display:none}}
+</style>
+</head>
+<body>
+<main id="app">
+  <div class="who">
+    <label>Para: <input id="to" placeholder="su nombre" maxlength="24"></label>
+    <label>De: <input id="from" placeholder="tu nombre" maxlength="24"></label>
+  </div>
+
+  <svg id="pika" viewBox="0 0 200 200" role="img" aria-label="Pikachu triste llorando">
+    <path d="M150 150 L185 130 L172 112 L196 92 L160 100 L170 120 L148 128Z" fill="#ffd23f" stroke="#3a2a14" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M62 72 L36 12 Q60 22 88 56Z" fill="#ffd23f" stroke="#3a2a14" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M36 12 L45 34 L56 22 Q46 16 36 12Z" fill="#2b2118"/>
+    <path d="M138 72 L164 12 Q140 22 112 56Z" fill="#ffd23f" stroke="#3a2a14" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M164 12 L155 34 L144 22 Q154 16 164 12Z" fill="#2b2118"/>
+    <ellipse cx="100" cy="140" rx="48" ry="46" fill="#ffd23f" stroke="#3a2a14" stroke-width="3"/>
+    <ellipse cx="100" cy="92" rx="60" ry="48" fill="#ffd23f" stroke="#3a2a14" stroke-width="3"/>
+    <ellipse cx="82" cy="158" rx="11" ry="9" fill="#ffd23f" stroke="#3a2a14" stroke-width="3"/>
+    <ellipse cx="118" cy="158" rx="11" ry="9" fill="#ffd23f" stroke="#3a2a14" stroke-width="3"/>
+    <circle cx="50" cy="106" r="12" fill="#ef476f"/><circle cx="150" cy="106" r="12" fill="#ef476f"/>
+    <!-- triste -->
+    <g class="sd">
+      <circle cx="76" cy="90" r="10" fill="#1b140d"/><circle cx="124" cy="90" r="10" fill="#1b140d"/>
+      <circle cx="73" cy="86" r="4" fill="#fff"/><circle cx="121" cy="86" r="4" fill="#fff"/><circle cx="79" cy="94" r="2" fill="#fff"/><circle cx="127" cy="94" r="2" fill="#fff"/>
+      <path d="M62 72 L88 78 M138 72 L112 78" stroke="#3a2a14" stroke-width="3" stroke-linecap="round"/>
+      <path d="M90 122 Q100 112 110 122" fill="none" stroke="#3a2a14" stroke-width="3.5" stroke-linecap="round"/>
+      <path class="tear" d="M70 102 q-6 10 0 14 q6 -4 0 -14z"/><path class="tear b" d="M130 102 q-6 10 0 14 q6 -4 0 -14z"/>
+    </g>
+    <!-- feliz -->
+    <g class="hp" style="display:none">
+      <path d="M66 92 Q76 80 86 92 M114 92 Q124 80 134 92" fill="none" stroke="#1b140d" stroke-width="5" stroke-linecap="round"/>
+      <path d="M86 112 Q100 134 114 112Z" fill="#7a1f2b" stroke="#3a2a14" stroke-width="3" stroke-linejoin="round"/>
+    </g>
+    <path d="M97 102 L103 102 L100 106Z" fill="#1b140d"/>
+    <g class="bolt" style="display:none"><path d="M14 40 L30 40 L22 58 L34 58 L12 90 L18 64 L8 64Z" fill="#ffd23f"/><path d="M180 30 L192 30 L186 46 L196 46 L176 74 L180 52 L172 52Z" fill="#ffd23f"/></g>
+  </svg>
+
+  <h1 id="title">Hubo un cortocircuito en mi corazón</h1>
+  <p id="sub">Soy ingeniero eléctrico y fallé en lo más importante: cuidarte. Ayúdame a reparar el circuito.</p>
+
+  <section class="board" aria-label="Panel de reparación">
+    <h2>Panel de reparación</h2>
+    <p class="hint">Cierra los 3 interruptores para restablecer la corriente.</p>
+    <button class="sw" data-v="1"><span class="led"></span><span>Reconozco que me equivoqué</span></button>
+    <button class="sw" data-v="2"><span class="led"></span><span>Prometo escucharte de verdad</span></button>
+    <button class="sw" data-v="3"><span class="led"></span><span>Te quiero más que a mi multímetro</span></button>
+    <div class="meter"><div id="fill"></div></div>
+    <div id="volts">0 V / 220 V</div>
+  </section>
+
+  <article class="letter" id="letter">
+    Querida <b id="l-to">tú</b>,<br><br>
+    Calculé mal. Pensé que podía soportar la carga yo solo y terminé quemando el fusible de lo que más me importa.<br>
+    No hay ley de Ohm que justifique lo que hice: te lastimé y lo siento de verdad.<br>
+    Quiero volver a conectarte a mi vida, sin ruido, sin interferencias, a tierra firme.<br><br>
+    Con todo mi voltaje, <b id="l-from">yo</b> ⚡
+  </article>
+
+  <section class="ask" id="ask">
+    <h2>¿Me perdonas?</h2>
+    <div class="btns">
+      <button class="go" id="yes">Sí, te perdono 💛</button>
+      <button class="go" id="no">No todavía</button>
+    </div>
+    <div id="final">Perdón aceptado.<br>Sistema restablecido al 100%. ⚡💛</div>
+  </section>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const q=new URLSearchParams(location.search);
+const to=$('#to'),from=$('#from');
+to.value=q.get('para')||'primita queria greys';from.value=q.get('de')||'tu primito zair';
+function names(){$('#l-to').textContent=to.value.trim()||'tú';$('#l-from').textContent=from.value.trim()||'yo'}
+to.oninput=from.oninput=names;names();
+
+let on=0;
+document.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{
+  b.classList.toggle('on');
+  on=document.querySelectorAll('.sw.on').length;
+  $('#fill').style.width=(on/3*100)+'%';
+  $('#volts').textContent=Math.round(on/3*220)+' V / 220 V';
+  if(on===3)fix();else unfix();
+});
+function fix(){
+  document.body.classList.add('happy-on');
+  $('#title').textContent='¡Circuito reparado!';
+  $('#sub').textContent='Mira, hasta Pikachu volvió a sonreír. Pero falta lo importante:';
+  $('#letter').classList.add('show');$('#ask').classList.add('show');
+  $('#letter').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function unfix(){
+  document.body.classList.remove('happy-on');
+  $('#title').textContent='Hubo un cortocircuito en mi corazón';
+  $('#sub').textContent='Soy ingeniero eléctrico y fallé en lo más importante: cuidarte. Ayúdame a reparar el circuito.';
+  $('#letter').classList.remove('show');$('#ask').classList.remove('show');
+}
+
+const no=$('#no'),yes=$('#yes');let tries=0;
+const lines=['No todavía','¿Segura?','Piénsalo…','Pikachu llora','Por favor','Ay…'];
+function dodge(e){
+  e.preventDefault();tries++;
+  no.textContent=lines[tries%lines.length];
+  const box=no.parentElement.getBoundingClientRect();
+  no.style.left=Math.random()*(box.width-no.offsetWidth)+'px';
+  no.style.top=Math.random()*(box.height-no.offsetHeight)+'px';
+  no.style.transform='scale('+Math.max(.5,1-tries*.07)+')';
+  yes.style.transform='scale('+Math.min(1.35,1+tries*.05)+')';
+}
+no.addEventListener('mouseenter',dodge);no.addEventListener('touchstart',dodge,{passive:false});no.addEventListener('click',dodge);
+
+yes.onclick=()=>{
+  $('.btns').style.display='none';$('#final').classList.add('show');
+  $('#title').textContent='¡Gracias por perdonarme!';
+  const em=['💛','⚡','💛','🔌','✨'];
+  for(let i=0;i<40;i++){setTimeout(()=>{
+    const h=document.createElement('div');h.className='heart';h.textContent=em[i%em.length];
+    h.style.left=Math.random()*100+'vw';h.style.fontSize=(18+Math.random()*28)+'px';
+    document.body.appendChild(h);setTimeout(()=>h.remove(),3300)},i*90)}
+};
+</script>
+</body>
+</html>
